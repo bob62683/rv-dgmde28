@@ -1,0 +1,72 @@
+<html>
+<head>
+    <title>Robert Vernam - Assignment 2 - TTT2</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .board {
+            width:350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.turn, div.status {
+            width: 360px;
+            border: 1px solid #000;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+        }
+
+        h1.title {
+            font-size: 40px;
+        }
+        .square {
+            height:100px;
+            width:100px;
+            margin:5px;
+            border:1px solid #000;
+            text-align: center;
+            line-height:100px;
+            font-size:75px;
+            display:inline-block;
+        }
+
+        .square:hover {
+            background-color: lightgrey;
+        }
+    </style>
+    <script>
+        let players = ["O","X"];
+        let selection = Math.floor(Math.random() * players.length);
+        var currentPlayer = players[selection];
+
+        document.addEventListener("click", function(event) {
+            let clickedElementId = event.target.id; 
+            document.getElementById(clickedElementId).innerHTML = currentPlayer;
+            currentPlayer = (currentPlayer == "X") ? "O" : "X";
+        });
+    </script>
+</head>
+<body>
+    <div class="title"><h1 class="title">Welcome to Tic Tac Toe!</h1></div>
+    <div class="board">
+    <script>
+        const NUM_SQUARES = 9;
+        for (i=0; i<NUM_SQUARES; i++)
+        {
+            id = "sq"+i;
+            document.write( "<div class='square' id='" + id + "'>&nbsp;</div>" );
+        }
+    </script>
+    </div>
+    <script>
+        document.write( "<div class='turn'><h2 class='turn'>It is "+ currentPlayer +"'s Turn.</h2></div>" );
+    </script>
+    <div class="turn"><h2 class="turn">It is Player 2's Turn.</h2></div>
+    <div class="status"><h2 class="status">Reset Game</h2></div>
+</body>
+</html>
