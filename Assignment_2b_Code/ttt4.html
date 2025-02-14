@@ -43,11 +43,16 @@
         let players = ["O","X"];
         let selection = Math.floor(Math.random() * players.length);
         var currentPlayer = players[selection];
-
+        
         document.addEventListener("click", function(event) {
-            let clickedElementId = event.target.id; 
-            document.getElementById(clickedElementId).innerHTML = currentPlayer;
-            currentPlayer = (currentPlayer == "X") ? "O" : "X";
+            if(event.target.classList.contains("square")) {
+                let clickedElementId = event.target.id; 
+                if (document.getElementById(clickedElementId).innerHTML == "&nbsp;") {
+                    document.getElementById(clickedElementId).innerHTML = currentPlayer;
+                    currentPlayer = (currentPlayer == "X") ? "O" : "X";
+                    document.getElementById("playerturn").innerHTML = "It is "+ currentPlayer +"'s Turn";
+                }
+            }
         });
     </script>
 </head>
@@ -64,9 +69,8 @@
     </script>
     </div>
     <script>
-        document.write( "<div class='turn'><h2 class='turn'>It is "+ currentPlayer +"'s Turn.</h2></div>" );
+        document.write( "<div class='turn'><h2 id='playerturn' class='turn'>It is "+ currentPlayer +"'s Turn.</h2></div>" );
     </script>
-    <div class="turn"><h2 class="turn">It is Player 2's Turn.</h2></div>
     <div class="status"><h2 class="status">Reset Game</h2></div>
 </body>
 </html>
