@@ -43,28 +43,13 @@
         let players = ["O","X"];
         let selection = Math.floor(Math.random() * players.length);
         let currentPlayer = players[selection];
-        let winner = false
-        let moves = ["-", "-", "-", "-", "-", "-", "-", "-", "-"]
-        let winConditions  = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ]
-
-        function startGame() {
-            let sqr = document.getElementsByClassName("square");
-            for (let i = 0; i < sqr.length; i++) {
-                sqr[i].innerHTML = "&nbsp;";
-                moves[i] = "-"; 
-            }
-            winner = false;
-            document.getElementById("playerturn").innerHTML = "It is " + currentPlayer + "'s Turn";
-        }
+        let winner = false;
+        let moves = [];
+        let winConditions  = [];
 
         function checkWinner() {
             for (let i = 0; i < winConditions.length; i++) {
-                let [first,second,third] = winConditions[i]
-                if(moves[first] === currentPlayer && moves[second] === currentPlayer && moves[third] === currentPlayer) {
+                if(winConditions[i] == "XXX" || winConditions[i] == "OOO") {
                     winner = true;
                     document.getElementById("playerturn").innerHTML = currentPlayer +" Has Won!";
                     return;
@@ -78,9 +63,18 @@
             }
             if (count == 0) {
                 winner = true;
-                document.getElementById("playerturn").innerHTML = " It's a Draw!";
+                document.getElementById("playerturn").innerHTML = "It's a Draw!";
                 return;
             }
+        }
+
+        function startGame() {
+            let sqr = document.getElementsByClassName("square");
+            for (let i = 0; i < sqr.length; i++) {
+                sqr[i].innerHTML = "&nbsp;";
+            }
+            winner = false;
+            document.getElementById("playerturn").innerHTML = "It is " + currentPlayer + "'s Turn";
         }
 
         window.onload = function() {
@@ -88,10 +82,15 @@
                 if(event.target.classList.contains("square")) {
                     if (winner) return;
                     let clickedElementId = event.target.id; 
-                    let num = parseInt(clickedElementId.substring(2));
                     if (document.getElementById(clickedElementId).innerHTML == "&nbsp;") {
                         document.getElementById(clickedElementId).innerHTML = currentPlayer;
-                        moves[num] = currentPlayer;
+                        squares = Array.from(document.querySelectorAll('.square')).map(item => item.innerHTML);
+                        moves = squares.map(square => square.replace("&nbsp;", "-"));
+                        winConditions =  [
+                            [moves[0] + moves[1] + moves[2]], [moves[3] + moves[4] + moves[5]], [moves[6] + moves[7] + moves[8]],
+                            [moves[0] + moves[3] + moves[6]], [moves[1] + moves[4] + moves[7]], [moves[2] + moves[5] + moves[8]],
+                            [moves[0] + moves[4] + moves[8]], [moves[2] + moves[4] + moves[6]]
+                        ]                    
                         checkWinner();
                         document.getElementById("boardplay").innerHTML = moves
                         if (!winner) {
@@ -101,7 +100,7 @@
                     }
                 }
             });  
-        }          
+        }
     </script>
 </head>
 <body>
@@ -115,7 +114,7 @@
             document.write( "<div class='square' id='" + id + "'>&nbsp;</div>" );
         }
     </script>
-    </div>
+    </div> <!-- End Board-->
     <script>
         document.write( "<div class='turn'><h2 id='playerturn' class='turn'>It is "+ currentPlayer +"'s Turn.</h2></div>" );
     </script>
