@@ -1,0 +1,127 @@
+<html>
+<head>
+    <title>Robert Vernam - Assignment 2 - TTT5</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .board {
+            width:350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.turn, div.status {
+            width: 360px;
+            border: 1px solid #000;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+        }
+
+        h1.title {
+            font-size: 40px;
+        }
+        .square {
+            height:100px;
+            width:100px;
+            margin:5px;
+            border:1px solid #000;
+            text-align: center;
+            line-height:100px;
+            font-size:75px;
+            display:inline-block;
+        }
+
+        .square:hover {
+            background-color: lightgrey;
+        }
+    </style>
+    <script>
+        let players = ["O","X"];
+        let selection = Math.floor(Math.random() * players.length);
+        let currentPlayer = players[selection];
+        let winner = false
+        let moves = ["-", "-", "-", "-", "-", "-", "-", "-", "-"]
+        let winConditions  = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ]
+
+        function startGame() {
+            let sqr = document.getElementsByClassName("square");
+            for (let i = 0; i < sqr.length; i++) {
+                sqr[i].innerHTML = "&nbsp;";
+                moves[i] = "-"; 
+            }
+            winner = false;
+            document.getElementById("playerturn").innerHTML = "It is " + currentPlayer + "'s Turn";
+        }
+
+        function checkWinner() {
+            for (let i = 0; i < winConditions.length; i++) {
+                let [first,second,third] = winConditions[i]
+                if(moves[first] === currentPlayer && moves[second] === currentPlayer && moves[third] === currentPlayer) {
+                    winner = true;
+                    document.getElementById("playerturn").innerHTML = currentPlayer +" Has Won!";
+                    return;
+                }
+            }         
+            count = 0;
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i] == "-") {
+                    count++;
+                }
+            }
+            if (count == 0) {
+                winner = true;
+                document.getElementById("playerturn").innerHTML = " It's a Draw!";
+                return;
+            }
+        }
+
+        window.onload = function() {
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("square")) {
+                    if (winner) return;
+                    let clickedElementId = event.target.id; 
+                    let num = parseInt(clickedElementId.substring(2));
+                    if (document.getElementById(clickedElementId).innerHTML == "&nbsp;") {
+                        document.getElementById(clickedElementId).innerHTML = currentPlayer;
+                        moves[num] = currentPlayer;
+                        checkWinner();
+                        document.getElementById("boardplay").innerHTML = moves
+                        if (!winner) {
+                            currentPlayer = (currentPlayer == "X") ? "O" : "X";
+                            document.getElementById("playerturn").innerHTML = "It is "+ currentPlayer +"'s Turn";
+                        }
+                    }
+                }
+            });  
+        }          
+    </script>
+</head>
+<body>
+    <div class="title"><h1 class="title">Welcome to Tic Tac Toe!</h1></div>
+    <div class="board">
+    <script>
+        const NUM_SQUARES = 9;
+        for (i=0; i<NUM_SQUARES; i++)
+        {
+            id = "sq"+i;
+            document.write( "<div class='square' id='" + id + "'>&nbsp;</div>" );
+        }
+    </script>
+    </div>
+    <script>
+        document.write( "<div class='turn'><h2 id='playerturn' class='turn'>It is "+ currentPlayer +"'s Turn.</h2></div>" );
+    </script>
+    <div class="status" onClick="startGame()"><h2 class="status">Start Game</h2></div>   
+    <script>
+        document.write( "<div id='boardplay'>" + moves + "</div>" );
+    </script>
+</body>
+</html>
