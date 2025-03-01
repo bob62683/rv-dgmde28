@@ -92,7 +92,6 @@
                             [moves[0] + moves[4] + moves[8]], [moves[2] + moves[4] + moves[6]]
                         ]                    
                         checkWinner();
-                        document.getElementById("boardplay").innerHTML = moves
                         if (!winner) {
                             currentPlayer = (currentPlayer == "X") ? "O" : "X";
                             document.getElementById("playerturn").innerHTML = "It is "+ currentPlayer +"'s Turn";
