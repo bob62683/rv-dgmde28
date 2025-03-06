@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joe's Hotdogs - Hotdogs, Fries, Soda & Sauerkraut</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu {
+            display: inline-block;
+            background: white;
+            padding: 20px;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .menutitle {
+            font-size: 20px;
+            padding-bottom: 10px;
+        }
+
+        .itemblock {
+            padding:5px;
+            border: #000000 1px solid;
+        }
+
+        .menuitem {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .price {
+            font-size: 16px;
+            padding: 5px 0 10px;            
+            text-align: left;
+        }
+
+        .add {
+            max-width: 300px;
+        }
+
+        .addtocartbtn {
+            margin-left: 10px;
+        }
+
+        .cart {
+            max-width: 300px;
+            padding:5px;
+            border: #000000 1px solid;
+            margin: 10px 0;
+        }
+
+        .cartheader {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .hidden {
+            display:none;
+        }
+
+        .addtocartbtn:hover {
+            background-color: green;
+        }
+
+        .checkout {
+            padding:5px;
+            max-width: 300px;
+        }
+
+        .checkoutbtn:hover {
+            background-color: green;
+        }
+    </style>
+    <script>
+        var menu = {
+            "hotdog": 4.00,
+            "fries": 3.50,
+            "soda": 1.50,
+            "sauerkraut": 1.00
+        };
+
+        quantities = []
+        quantities["hotdog"] = 0
+        quantities["fries"] = 0
+        quantities["soda"] = 0
+        quantities["sauerkraut"] = 0
+
+        function addToCart() {
+            let input = document.getElementById("addtocart").value.trim().toLowerCase();
+            if (verifyAdd(input) == true) {
+                quantities[input] += 1;
+                document.getElementById("qty" + input).classList.remove("hidden");
+                document.getElementById("emptycart").classList.add("hidden");
+                document.getElementById("qty" + input).innerHTML = input.charAt(0).toUpperCase() + input.slice(1) + ": " + quantities[input];
+            }
+        }
+
+        function verifyAdd (input) {
+            
+            if (input in menu) {
+                return true
+            } else {
+                alert(input + " is not a menu item!")
+            }
+            
+        }
+
+        function checkOut() {
+            console.log(quantities)
+            let order = []
+            for (let cartitem in quantities) {
+                if (quantities[cartitem] >= 1) {
+                    order[cartitem] = quantities[cartitem] * menu[cartitem]
+                }
+            }
+            let total = 0
+            for (itemtotal in order) {
+                total += order[itemtotal]
+            }
+            
+            let message = "";
+            for (let orderitem in order) {
+                message += orderitem.charAt(0).toUpperCase() + orderitem.slice(1) + ": $" + order[orderitem].toFixed(2) + "\n";
+            }
+            message += "Total: $" + total.toFixed(2)
+            
+            alert(message)
+
+            for (let item in quantities) {
+                quantities[item] = 0;
+                document.getElementById('qty' + item).classList.add('hidden');
+            }
+            document.getElementById("emptycart").classList.remove("hidden");
+        }
+
+        window.onload = function() {
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("addtocartbtn")) {
+                    addToCart()
+                }    
+                if(event.target.classList.contains("checkoutbtn")) {
+                    checkOut()
+                }
+                
+            }
+        )}
+    </script>
+</head>
+<body>
+    <div class="title"><h1 class="title">Welcome to Joe's Hotdogs!</h1></div>
+    <div class="menu">
+        <div class="menutitle">Joe's Hotdogs Menu</div>
+    <script>
+        for (let item in menu) {
+            document.write('<div class="itemblock"><div class="menuitem" id="item' + item.toLowerCase() + '">' + item.charAt(0).toUpperCase() + item.slice(1) + ':</div><div class="price" id="price' + item.toLowerCase() + '">Price: $' + menu[item].toFixed(2) + '</div></div><br />');
+        }
+    </script>
+    <div class="add"><input type="text" id="addtocart" name="addtocart" value="Type the Menu Item" onClick="this.value=''"><button type="button" class="addtocartbtn">Add to Cart</button></div>
+    <div class="cart">
+        <div class="cartheader">Shopping Cart</div>
+        <script>
+            for (let quantity in quantities) {
+                document.write('<div class="cartitem hidden" id=qty' + quantity.toLowerCase() + '> + ' + quantity.charAt(0).toUpperCase() + quantity.slice(1) + ': ' + quantities[quantity] + '</div>');
+            }
+        </script>
+        <div class="empty" id="emptycart">Your Cart is Empty</div>
+    </div>
+    <div class="checkout"><button type="button" class="checkoutbtn">Checkout</button></div>
+    </div> <!-- End Menu-->
+    
+</body>
+</html>
