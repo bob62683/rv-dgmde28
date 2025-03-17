@@ -1,0 +1,312 @@
+<html>
+<head>
+    <title>Robert Vernam - Assignment 4 - Wordle</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .usedLetters {
+            width: 350px;
+            border: 1px solid #000;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .guesses {
+            width:350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+        .square {
+            height:50px;
+            width:50px;
+            margin:5px;
+            border:1px solid gray;
+            text-align: center;
+            line-height:50px;
+            font-size:16px;
+            display:inline-block;
+        }
+
+        .keyboard {
+            margin-top:10px;
+            width:550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            height:50px;
+            width:40px;
+            margin:5px;
+            border:1px solid gray;
+            line-height:50px;
+            text-align: center;
+            font-size:12px;
+            display:inline-block;
+            background-color: #d2d5d9;
+        }
+
+        .key:hover {
+            background-color: rgb(233, 233, 233);
+        }
+
+        .yellowbg, .yellowbg:hover {
+            background-color: rgb(189, 189, 65);
+        }
+
+        .greenbg, .greenbg:hover  {
+            background-color: rgb(116, 197, 129);
+        }
+
+        .redbg, .redbg:hover  {
+            background-color: rgb(197, 116, 116);
+        }
+
+        .startNewGame, .debug {
+            width: 350px;
+            border: 1px solid #000;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+    </style>
+    <script>
+        const keyboard = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Enter", "Z", "X", "C", "V", "B", "N", "M", "Delete"]
+        let secretWord = null;
+        let guessedWord = null;
+        let lettersUsed = {};
+        let uniqueLettersUsed = new Set();
+        let outcomes = {};
+        let attempts = 0;
+        let maxAttempts = 6;
+        let gamePosition = 0;
+        let gameNumber = 1;
+        let noDelete = 0;
+        let checkpoints = {"guess1":5, "guess2":10, "guess3":15, "guess4":20, "guess5":25, "guess6":30};
+
+        function getSecretWord() {
+            // From "How to use it" section on https://www.zippopotam.us/
+            // Gets 5 letter word from api.datamuse.com/words?sp=?????
+            var client = new XMLHttpRequest();
+            client.open("GET", "http://api.datamuse.com/words?sp=?????", true);
+            client.onreadystatechange = function() {
+                if(client.readyState == 4) {
+                    let data = client.responseText;
+                    let info = JSON.parse(data);
+                    secretWord = info[Math.floor(Math.random() * 51)]['word'].toUpperCase(); //pull a random word from the API call which only returns ~50 results and make it upper case to match the guessedWord case
+                };
+            };
+            client.send();
+        }
+
+        function checkClick() {
+            // Gets the id of the clicked keyboard letter and based on value, performs an action
+            let clickedLetterId = "sq" + gamePosition; // Set clickedLetterId to the square id associated to the element that was clicked 
+            let previousLetterId = "sq" + (gamePosition - 1); // Needed for delete functionality
+            let clickedElementId = event.target.id; // Set clickedElementId to the keyboard element id of the key that was clicked 
+            let click = document.getElementById(clickedElementId).innerHTML // Gets the value of letter/enter/delete innerHTML
+            if (click == "Enter") {
+                if (Object.values(checkpoints).includes(gamePosition)) { //checks if the position of the letter in the word matches a checkpoint value. If it does it continues
+                    validateWord();
+                } else {
+                    return; //if it does not, it does nothing
+                }
+            } else if (click == "Delete") {
+                if (gamePosition > 0) { //ensures we cannot delete past an empty board
+                        if (gamePosition == noDelete) { 
+                            return; // noDelete is set to 0 initially and gets incremented in checkGuess() to ensure you cannot delete from submitted guesses
+                        } else {
+                            document.getElementById(previousLetterId).innerHTML = '&nbsp;'; //reset square to non-breaking space
+                            delete lettersUsed[previousLetterId]; //removes from used letter object
+                            gamePosition-- //deceremnts gamePosition by one to indicate current letter has been removed
+                        }
+                    }
+            } else {
+                if (gamePosition <= 29) { //prevents from exceeding 30 clicks
+                    if (!Object.values(checkpoints).includes(gamePosition)) { //checks if the the gamePosition is at a checkpoint (5 letter word)
+                        document.getElementById(clickedLetterId).innerHTML = click
+                        lettersUsed[clickedLetterId] = click; //adds click to lettersUsed
+                        gamePosition++ //increments gamePosition by one to indicate next letter can be added
+                    }
+                }
+            }
+        }
+
+        function validateWord() {
+            // From "How to use it" section on https://www.zippopotam.us/
+            let wordIndex = (gamePosition - 5); // Gets the index of the first letter of the guessed word
+            //concats the letters to form a guessed word
+            guessedWord = lettersUsed["sq" + wordIndex] + lettersUsed["sq" + (wordIndex + 1)] + lettersUsed["sq" + (wordIndex + 2)] + lettersUsed["sq" + (wordIndex + 3)] + lettersUsed["sq" + (wordIndex + 4)]
+            var client = new XMLHttpRequest(); //start API call to see if word is valied
+            client.open("GET", "https://api.datamuse.com/words?sp=" + guessedWord.toLowerCase() + "&max=1", true); //api url to get the validity of the word, returning only 1 result
+            client.onreadystatechange = function() {
+                if(client.readyState == 4) {
+                    let data = client.responseText;
+                    let info = JSON.parse(data)
+                    if (info.length == 0) { //datamuse returns empty if there is nothing even close
+                        alert("Please enter a valid word")
+                    } else if (info[0]["word"] !== guessedWord.toLowerCase()) { //datamuse returns similarly spelled words, so 'queit' was returning 'quit' and passing validatio
+                        alert("Please enter a valid word")
+                    } else {
+                        checkGuess(guessedWord, wordIndex);
+                    
+                    };
+                };
+            };
+            client.send();
+        }
+
+        function checkGuess(guessedWord, wordIndex) {
+            //checked if the guessed word matches the secret word in any way
+            let tempSecretWord = secretWord.split(""); // Turning word into a temporary array
+            let tempGuessedWord = guessedWord.split(""); // Turning word into a temporary array
+            
+            for (let letter of guessedWord) { //loops over the string
+                uniqueLettersUsed.add(letter); //adds to the uniqueLettersUsed Set
+                arrayUnique = Array.from(uniqueLettersUsed); //convert it to an array so I can sort and join
+                document.getElementById("used").innerHTML = "Letters Used:<br/>" + arrayUnique.sort().join(" ") //joins all the letter separated by a space and lists them at the top of the game board
+            } 
+            
+            for (let a = 0; a < tempSecretWord.length; a++) {
+                if (tempSecretWord[a] == tempGuessedWord[a]) { // Checking for exact matches
+                    document.getElementById(tempGuessedWord[a]).classList.add('greenbg'); // Adding a green background class when a match is found
+                    document.getElementById("sq" + (wordIndex + a)).classList.add('greenbg'); // Adding a green background class when a match is found
+                    tempSecretWord[a] = "*"; //Replacing the letter with a star to prevent further matching
+                }
+            }
+
+            for (let b = 0; b < tempSecretWord.length; b++) {             
+                if (tempSecretWord.includes(tempGuessedWord[b])) { // Checking for non-exact matches
+                    for (let d = 0; d < tempSecretWord.length; d++) { // Find the first occurrence of the letter
+                        if (tempGuessedWord[b] == tempSecretWord[d]) { // If a match is found
+                            document.getElementById(tempGuessedWord[b]).classList.add('yellowbg'); // Adding a yellow background class when a match is found
+                            document.getElementById("sq" + (wordIndex + b)).classList.add('yellowbg'); // Adding a yellow background class when a match is found
+                            tempSecretWord[d] = "*"; //Replacing the letter with a star to prevent further matching
+                            break; // Stop after first available match as it was adding yellowbg to all occurences of guesses with multiple of the same letter when secretWord only had one
+                        }
+                    }
+                }
+            }
+
+            for (let c = 0; c < guessedWord.length; c++) { // Need the index
+                for (let letter of guessedWord) { // Iterate over the guessed word, letter by letter
+                    if (!document.getElementById("sq" + (wordIndex + c)).classList.contains('greenbg') && // Skip any elements that have already been set to green
+                        !document.getElementById("sq" + (wordIndex + c)).classList.contains('yellowbg')) { // Skip any elements that have already been set to yellow
+                        document.getElementById("sq" + (wordIndex + c)).classList.add('redbg'); // Adding a red background class when no matching class is found
+                    }
+                    if (!document.getElementById(guessedWord[c]).classList.contains('greenbg') && // Skip any elements that have already been set to green
+                        !document.getElementById(guessedWord[c]).classList.contains('yellowbg')) { // Skip any elements that have already been set to yellow
+                        document.getElementById(guessedWord[c]).classList.add('redbg'); // Adding a red background class when no matching class is found
+                    }
+                }
+            }
+            
+            if (secretWord == guessedWord) { // Check for correctly matched word 
+                //https://www.w3schools.com/js/js_htmldom_animate.asp
+                alert("You guessed Correctly!") // Change to animation if possible
+                return;
+            }
+
+            if (attempts == maxAttempts) {
+                alert("You are out of guesses!")
+                return;
+            }
+
+            delete checkpoints[Object.keys(checkpoints)[0]]; //removes the 0 index checkpoint so the game can continue
+            noDelete += 5;; //adds 5 to the noDelete value for delete checking for checkClick()
+            attempts++ // Increament attempts to track for statistics
+        } 
+
+        function startNewGame() {
+            // Reset everything and increment the gameNumber
+            secretWord = null;
+            guessedWord = null
+            lettersUsed = {};
+            uniqueLettersUsed = new Set();
+            attempts = 0;
+            maxAttempts = 6;
+            gamePosition = 0;
+            noDelete = 0;
+            checkpoints = {"guess1":5, "guess2":10, "guess3":15, "guess4":20, "guess5":25, "guess6":30};
+            gameNumber++ // Increament gameNumber to track for statistics
+            document.getElementById("debug").innerHTML = "Debug"
+            document.getElementById("used").innerHTML = "No Letters Used!"
+            document.getElementById("title").innerHTML = "Welcome to Game # " + gameNumber + " of Wordle!"
+            let squares = document.getElementsByClassName("square"); // Reset square background colors
+            for (let square of squares) {
+                square.innerHTML = '&nbsp;';
+                square.classList.remove('yellowbg');
+                square.classList.remove('redbg');
+                square.classList.remove('greenbg');
+            }
+            let keys = document.getElementsByClassName("key"); // Reset key background colors
+            for (let key of keys) { 
+                key.classList.remove('yellowbg');
+                key.classList.remove('redbg');
+                key.classList.remove('greenbg');
+            }
+            getSecretWord() // Get the new secretWord
+        }
+
+        function debug() {
+            //checks for debug string and sets to secretWord if found, otherwise sets back to debug
+            if (document.getElementById("debug").innerHTML == "Debug") {
+                document.getElementById("debug").innerHTML = secretWord;
+            } else {
+                document.getElementById("debug").innerHTML = "Debug"
+            }
+            
+        }
+
+        window.onload = function() {
+            getSecretWord() // Get the secretWord
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("key")) {checkClick()}                
+            })
+
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("startNewGame")) {startNewGame()}                
+            })
+
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("debug")) {debug()}                
+            })
+        }
+    </script>
+</head>
+<body>
+    <div class="title"><h1 id="title">Welcome to Game #1 of Wordle!</h1></div>
+    <div class="usedLetters" id="used">Letters Used:<br/>No Letters Used!</div>
+    <div class="board">
+        <div class="guesses">
+            <script>
+                //build guess box structure
+                const NUM_SQUARES = 30;
+                for (i = 0; i < NUM_SQUARES; i++) {id = "sq"+i; document.write( "<div class='square' id='" + id + "'>&nbsp;</div>" );}
+            </script>
+        </div><!-- End guesses-->
+        <div class="keyboard">
+            <script>
+                //build keyboard structure
+                for (i = 0; i < keyboard.length; i++) {id = keyboard[i]; document.write( "<div class='key' id='" + id + "'>" + keyboard[i] + "</div>" );}
+            </script>
+        </div><!-- End keyboard-->
+    </div> <!-- End Game board-->
+    <div class="startNewGame" id="newGame">Start New Game</div>
+    <div class="debug" id="debug">Debug</div>
+</body>
+</html>
