@@ -102,7 +102,7 @@
             // From "How to use it" section on https://www.zippopotam.us/
             // Gets 5 letter word from api.datamuse.com/words?sp=?????
             var client = new XMLHttpRequest();
-            client.open("GET", "http://api.datamuse.com/words?sp=?????", true);
+            client.open("GET", "https://api.datamuse.com/words?sp=?????", true);
             client.onreadystatechange = function() {
                 if(client.readyState == 4) {
                     let data = client.responseText;
