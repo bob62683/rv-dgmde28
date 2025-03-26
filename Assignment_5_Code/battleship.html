@@ -104,7 +104,7 @@
                 // .then (shipData => console.log(shipData)) 
                 .then (response =>
                 {
-                    console.log("Response: " + response);
+                    //console.log("Response: " + response);
                     shipData = JSON.parse(response);
                 })
                 .catch (error => console.log(error)) 
@@ -114,6 +114,7 @@
         }
 
         function placeShips() {
+            console.log(shipData)
             shipData.ships.forEach(ship => { // Iterate through ships
                 let [a,b] = ship.coords; // Pull in the cords data from each ship
                 let hits = []; // Declare empty array
