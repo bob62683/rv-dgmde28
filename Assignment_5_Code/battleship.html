@@ -69,42 +69,42 @@
         }
     </style>
     <script>
-        let shipData = {
-            "ships": 
-            [
-                {
-                "name": "ship1",
-                "orientation": "vertical",
-                "size": 4,
-                "coords":[2,3]
-                },	
-                {
-                "name":"ship2",
-                "orientation": "horizontal",
-                "size": 3,
-                "coords":[3,3]
-                },
-                {
-                "name":"ship3",
-                "orientation": "vertical",
-                "size": 2,
-                "coords":[6,5]
-                }
+        // let shipData = {
+        //     "ships": 
+        //     [
+        //         {
+        //         "name": "ship1",
+        //         "orientation": "vertical",
+        //         "size": 4,
+        //         "coords":[2,3]
+        //         },	
+        //         {
+        //         "name":"ship2",
+        //         "orientation": "horizontal",
+        //         "size": 3,
+        //         "coords":[3,3]
+        //         },
+        //         {
+        //         "name":"ship3",
+        //         "orientation": "vertical",
+        //         "size": 2,
+        //         "coords":[6,5]
+        //         }
 
-            ]
-        }
+        //     ]
+        // }
         let remainingGuesses = 20;
         let hitsPerShip = {};
 
         function getShipJson() {
             //Fetch ship JSON
-            // res = fetch("battleship.json")
-            //     .then (res => res.text())
-            //     .then (shipData => console.log(shipData)) 
-            //     .catch (error => console.log(error)) 
-            //     Access to fetch at 'file:///C:/Users/bvernam/Downloads/Harvard/DGMD%20E-28/Assignment%205/Assignment_5_Code/battleship.json' 
-            //     from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, 
-            //     chrome-extension, chrome-untrusted, data, http, https, isolated-app.
+            res = fetch("https://bob62683.github.io/rv-dgmde28/Assignment_5_Code/battleship.json")
+                .then (res => res.text())
+                .then (shipData => console.log(shipData)) 
+                .catch (error => console.log(error)) 
+                // Access to fetch at 'file:///C:/Users/bvernam/Downloads/Harvard/DGMD%20E-28/Assignment%205/Assignment_5_Code/battleship.json' 
+                // from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, 
+                // chrome-extension, chrome-untrusted, data, http, https, isolated-app.
         }
 
         function placeShips() {
