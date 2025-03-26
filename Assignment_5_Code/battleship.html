@@ -97,7 +97,7 @@
         let hitsPerShip = {};
         let shipData = {};
 
-        async function getShipJson() {
+        function getShipJson() {
             //Fetch ship JSON
             res = fetch("https://bob62683.github.io/rv-dgmde28/Assignment_5_Code/battleship.json") //Fetch the JSON
                 .then (res => res.json())
@@ -170,7 +170,7 @@
             }
         }
 
-        async function startNewGame() {
+        function startNewGame() {
             // Reset everything and increment the gameNumber
             remainingGuesses = 20;
             hitsPerShip = {};
@@ -181,11 +181,11 @@
                 square.classList.remove('redbg');
                 square.classList.remove('graybg');
             }
-            await getShipJson();
+            getShipJson();
         }
 
-        window.onload = async function() {
-            await getShipJson();
+        window.onload = function() {
+            getShipJson();
             document.addEventListener("click", function(event) {
                 if(event.target.classList.contains("square")) {
                     if (remainingGuesses == 0) { //check if game is over
