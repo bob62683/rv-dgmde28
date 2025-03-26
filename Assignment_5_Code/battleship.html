@@ -100,7 +100,12 @@
             //Fetch ship JSON
             res = fetch("https://bob62683.github.io/rv-dgmde28/Assignment_5_Code/battleship.json")
                 .then (res => res.text())
-                .then (shipData => console.log(shipData)) 
+                // .then (shipData => console.log(shipData)) 
+                .then (response =>
+                {
+                    console.log("Response" + response);
+                    shipData = JSON.parse(response);
+                })
                 .catch (error => console.log(error)) 
                 // Access to fetch at 'file:///C:/Users/bvernam/Downloads/Harvard/DGMD%20E-28/Assignment%205/Assignment_5_Code/battleship.json' 
                 // from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, 
