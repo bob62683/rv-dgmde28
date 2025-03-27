@@ -69,109 +69,60 @@
         }
     </style>
     <script>
-        // let shipData = {
-        //     "ships": 
-        //     [
-        //         {
-        //         "name": "ship1",
-        //         "orientation": "vertical",
-        //         "size": 4,
-        //         "coords":[2,3]
-        //         },	
-        //         {
-        //         "name":"ship2",
-        //         "orientation": "horizontal",
-        //         "size": 3,
-        //         "coords":[3,3]
-        //         },
-        //         {
-        //         "name":"ship3",
-        //         "orientation": "vertical",
-        //         "size": 2,
-        //         "coords":[6,5]
-        //         }
-
-        //     ]
-        // }
         let remainingGuesses = 20;
         let hitsPerShip = {};
         let shipData = {};
 
-        function getShipJson() {
-            //Fetch ship JSON
+        function getShipJson() { //Fetch battleship JSON            
             res = fetch("https://bob62683.github.io/rv-dgmde28/Assignment_5_Code/battleship.json") //Fetch the JSON
                 .then (res => res.json())
-                // .then (shipData => console.log(shipData)) 
-                .then (response =>
-                {
-                    //console.log("Response: " + response);
-                    shipData = response;
-                    placeShips();
-                })
+                .then (response => {shipData = response; placeShips();})
                 .catch (error => console.log(error)) 
-                // Access to fetch at 'file:///C:/Users/bvernam/Downloads/Harvard/DGMD%20E-28/Assignment%205/Assignment_5_Code/battleship.json' 
-                // from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, 
-                // chrome-extension, chrome-untrusted, data, http, https, isolated-app.
         }
 
-        function placeShips() {
-            console.log(shipData)
+        function placeShips() { //Place the ships on the board by storing positions in an object
             shipData.ships.forEach(ship => { // Iterate through ships
                 let [a,b] = ship.coords; // Pull in the cords data from each ship
                 let hits = []; // Declare empty array
                 for (let i=0; i<ship.size;i++) {
                     if (ship.orientation == "vertical") {
-                        //console.log(ship.orientation)
-                        hits.push("sq" + a + "-" + (b + i)) // Add the vertical ship coordinate to the hits array that matches square id
-                        //console.log(hits)
+                        hits.push("sq" + a + "-" + (b + i)) // Add the vertical ship coordinates to the hits array that matches square id
                     }
                     else if (ship.orientation == "horizontal"){
-                        //console.log(ship.orientation) 
-                        hits.push("sq" + (a + i) + "-" + b) // Add the horizontal ship coordinate to the hits array that matches square id
-                        //console.log(hits)
+                        hits.push("sq" + (a + i) + "-" + b) // Add the horizontal ship coordinates to the hits array that matches square id
                     }
                 }
                 hitsPerShip[ship.name] = hits; // Build the per ship hits coordinates
             })
         }
 
-        function playGame() {
+        function playGame() { // Process each click based on if it is a hit or a miss
             let clickedElementId = event.target.id; // Get the id of the clicked square
-            //console.log(Object.values(hitsPerShip))
-            //console.log(Object.values(hitsPerShip).flat())
             if (Object.values(hitsPerShip).flat().includes(clickedElementId)) { // Flatten the array to check if the coordinates are inside hitsPerShip 
                 document.getElementById(clickedElementId).classList.add('redbg'); // Swap to red background if it is
                 document.getElementById("move").innerHTML = "Hit!" // Update the text box to indicate it was a hit
-                //console.log(Object.keys(hitsPerShip))
-                Object.keys(hitsPerShip).forEach(ship => { // Get all the keys of hitsPerShip and iterate throgh them
-                    //console.log(hitsPerShip[ship])
-                    //console.log(hitsPerShip[ship].length)
+                Object.keys(hitsPerShip).forEach(ship => { // Get all the keys of hitsPerShip and iterate through them
                     if (hitsPerShip[ship].length !== 0) { //check to make sure it is not empty
                         hitsPerShip[ship] = hitsPerShip[ship].filter(n => n != clickedElementId) // Reset hitsPerShip for the ship to remove the matching clickedElementId
-                        //console.log(hitsPerShip[ship])
-                        //console.log(hitsPerShip[ship].length)
                         if (hitsPerShip[ship].length == 0) { //check if the ship that was hit has any items left
                             document.getElementById("move").innerHTML = "A Ship has Been Sunk!" // Update the text box to indicate the ship is sunk
                         }
                     }
                 })
-                //console.log(hitsPerShip)
-                } else {
-                    document.getElementById(clickedElementId).classList.add('graybg'); // Swap to gray background if it is a miss
-                    document.getElementById("move").innerHTML = "Miss!" // Update the text box to indicate it was a miss
-                }
+            } else {
+                document.getElementById(clickedElementId).classList.add('graybg'); // Swap to gray background if it is a miss
+                document.getElementById("move").innerHTML = "Miss!" // Update the text box to indicate it was a miss
+            }
             remainingGuesses--; // Decrement remainingGuesses
             document.getElementById("guess").innerHTML = "Remaining Guesses: " + remainingGuesses // Update the text box to indicate remaining guesses
             if (remainingGuesses == 0) {document.getElementById("move").innerHTML = "You've lost the Battle!"} // Update the text box to indicate no remaining guesses
-            //console.log(hitsPerShip["ship1"], hitsPerShip["ship2"], hitsPerShip["ship3"])
             if (hitsPerShip["ship1"].length == 0 && hitsPerShip["ship2"].length == 0 && hitsPerShip["ship3"].length == 0) { // Check if all ships are sunk
                 document.getElementById("move").innerHTML = "You've Sunken All the Ships!" // Update the text box to indicate all ships are sunk
                 remainingGuesses = 0; // Set remainingGuesses to 0 to end the game
             }
         }
 
-        function startNewGame() {
-            // Reset everything and increment the gameNumber
+        function startNewGame() { // Reset everything and increment the gameNumber
             remainingGuesses = 20;
             hitsPerShip = {};
             document.getElementById("guess").innerHTML = "Remaining Guesses: 20"
@@ -198,7 +149,7 @@
             })
             document.addEventListener("click", function(event) {
                 if(event.target.classList.contains("startNewGame")) {
-                    startNewGame()
+                    startNewGame();
                 }                
             })
         }
