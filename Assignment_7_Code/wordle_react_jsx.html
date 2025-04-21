@@ -1,0 +1,180 @@
+<html>
+<head>
+    <title>Robert Vernam - Assignment 7 - Wordle</title>
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .guesses {
+            width:350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+        
+        .square {
+            height:50px;
+            width:50px;
+            margin:5px;
+            border:1px solid gray;
+            text-align: center;
+            line-height:50px;
+            font-size:16px;
+            display:inline-block;
+        }
+
+        .keyboard {
+            margin-top:10px;
+            width:550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            height:50px;
+            width:40px;
+            margin:5px;
+            border:1px solid gray;
+            line-height:50px;
+            text-align: center;
+            font-size:12px;
+            display:inline-block;
+            background-color: #d2d5d9;
+        }
+
+        .key:hover {
+            background-color: rgb(233, 233, 233);
+        }
+
+        .yellowbg, .yellowbg:hover {
+            background-color: rgb(189, 189, 65);
+        }
+
+        .greenbg, .greenbg:hover  {
+            background-color: rgb(116, 197, 129);
+        }
+
+        .redbg, .redbg:hover  {
+            background-color: rgb(197, 116, 116);
+        }
+
+        .startNewGame, .debug {
+            width: 350px;
+            border: 1px solid #000;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+    </style>
+    <script>
+        const keyboard = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Enter", "Z", "X", "C", "V", "B", "N", "M", "Delete"]
+        const guess = ["M", "I", "G", "H", "T", 
+                        "F", "L", "O", "O", "D", 
+                        "S", "T", "R", "A", "Y", 
+                        "", "", "", "", "",
+                        "", "", "", "", "",
+                        "", "", "", "", ""]
+        let secretWord = "MOODY";
+        let guessedWord = null;
+        let guessedWords = ["MIGHT", "FLOOD", "STRAY"];
+        let wordIndex = 0;
+
+        function checkGuess(guessedWord, wordIndex) {
+            //checked if the guessed word matches the secret word in any way
+            let tempSecretWord = secretWord.split(""); // Turning word into a temporary array
+            let tempGuessedWord = guessedWord.split(""); // Turning word into a temporary array
+            
+            for (let a = 0; a < tempSecretWord.length; a++) {
+                if (tempSecretWord[a] == tempGuessedWord[a]) { // Checking for exact matches
+                    document.getElementById(tempGuessedWord[a]).classList.add('greenbg'); // Adding a green background class when a match is found
+                    document.getElementById("sq" + (wordIndex + a)).classList.add('greenbg'); // Adding a green background class when a match is found
+                    tempSecretWord[a] = "*"; //Replacing the letter with a star to prevent further matching
+                    tempGuessedWord[a] = null; //Setting to "*" threw type error, so set to null for when the yellow passes over it is just null 
+                }
+            }
+
+            for (let b = 0; b < tempSecretWord.length; b++) {             
+                if (tempSecretWord.includes(tempGuessedWord[b])) { // Checking for non-exact matches
+                    for (let d = 0; d < tempSecretWord.length; d++) { // Find the first occurrence of the letter
+                        if (tempGuessedWord[b] == tempSecretWord[d]) { // If a match is found
+                            document.getElementById(tempGuessedWord[b]).classList.add('yellowbg'); // Adding a yellow background class when a match is found
+                            document.getElementById("sq" + (wordIndex + b)).classList.add('yellowbg'); // Adding a yellow background class when a match is found
+                            tempSecretWord[d] = "*"; //Replacing the letter with a star to prevent further matching
+                            tempGuessedWord[d] = null; //Setting to "*" threw type error, so set to null for when the red passes over it is just null 
+                            break; // Stop after first available match as it was adding yellowbg to all occurences of guesses with multiple of the same letter when secretWord only had one
+                        }
+                    }
+                }
+            }
+
+            for (let c = 0; c < guessedWord.length; c++) { // Need the index
+                for (let letter of guessedWord) { // Iterate over the guessed word, letter by letter
+                    if (!document.getElementById("sq" + (wordIndex + c)).classList.contains('greenbg') && // Skip any elements that have already been set to green
+                        !document.getElementById("sq" + (wordIndex + c)).classList.contains('yellowbg')) { // Skip any elements that have already been set to yellow
+                        document.getElementById("sq" + (wordIndex + c)).classList.add('redbg'); // Adding a red background class when no matching class is found
+                    }
+                    if (!document.getElementById(guessedWord[c]).classList.contains('greenbg') && // Skip any elements that have already been set to green
+                        !document.getElementById(guessedWord[c]).classList.contains('yellowbg')) { // Skip any elements that have already been set to yellow
+                        document.getElementById(guessedWord[c]).classList.add('redbg'); // Adding a red background class when no matching class is found
+                    }
+                }
+            }
+            
+            if (secretWord == guessedWord) { // Check for correctly matched word 
+                alert("You guessed Correctly!") // Change to animation if possible
+                return;
+            }
+        } 
+
+        function debug() {
+            //checks for debug string and sets to secretWord if found, otherwise sets back to debug
+            if (document.getElementById("debug").innerHTML == "Debug") {
+                document.getElementById("debug").innerHTML = secretWord;
+            } else {
+                document.getElementById("debug").innerHTML = "Debug"
+            }
+            
+        }
+
+        window.onload = function() {
+            guessedWords.forEach(guess => {checkGuess(guess, wordIndex), wordIndex += 5})
+
+            document.addEventListener("click", function(event) {
+                if(event.target.classList.contains("debug")) {debug()}                
+            })
+        }
+    </script>
+</head>
+<body>
+    <div class="title"><h1 id="title">Welcome to Wordle!</h1></div>
+    <div class="board">
+        <div id="guessContainer" class="guesses">
+            <script type="text/babel">
+                //var squares = guess.map((item,idx)=> React.createElement("div",{className:"square", id:"sq" + idx, key:idx},guess[idx]));
+                var squares = guess.map((item,idx) => <div className="square" id={`sq${idx}`} key={idx}>{guess[idx]}</div>);
+                ReactDOM.render(squares, guessContainer);
+            </script>
+        </div><!-- End guesses-->
+        <div id="keyboardContainer" class="keyboard">
+            <script type='text/babel'>
+                //var keys = keyboard.map((item,idx)=> React.createElement("div",{className:"key", id:keyboard[idx], key:idx},keyboard[idx]));
+                var keys = keyboard.map((item,idx) => <div className="key" id={keyboard[idx]} key={idx}>{keyboard[idx]}</div>);
+                ReactDOM.render(keys, keyboardContainer);
+            </script>
+        </div><!-- End keyboard-->
+    </div> <!-- End Game board-->
+    <div class="startNewGame" id="newGame">Start New Game</div>
+    <div class="debug" id="debug">Debug</div>
+</body>
+</html>
